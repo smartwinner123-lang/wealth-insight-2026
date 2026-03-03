@@ -1,1 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 财富原力深度测评</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #0a0a0c; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .progress-bar { transition: width 0.4s ease; }
+        .option-btn:active { transform: scale(0.98); }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex items-center justify-center p-4">
 
+    <div id="app" class="max-w-md w-full glass-card p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl"></div>
+
+        <div id="start-screen" class="text-center py-8">
+            <div class="inline-block px-3 py-1 bg-yellow-500/20 text-yellow-500 rounded-full text-xs font-bold mb-4 tracking-widest uppercase">Wealth Insight 2026</div>
+            <h1 class="text-3xl font-extrabold mb-6 bg-gradient-to-r from-yellow-200 to-yellow-500 bg-clip-text text-transparent">财富原力深度测评</h1>
+            <p class="text-slate-400 text-sm mb-8 leading-relaxed text-left">本测评基于行为经济学模型，深度剖析你在 2026 复杂市场环境下的金钱潜能与性格卡点。完成后可获取专属定制报告。</p>
+            <button onclick="startQuiz()" class="w-full py-4 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-2xl transition-all shadow-lg shadow-yellow-500/20">开始测评 (18题/约3分钟)</button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-xs text-slate-500 font-mono" id="progress-text">01 / 18</span>
+                <div class="w-2/3 h-1 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="progress-bar h-full bg-yellow-500 w-0"></div>
+                </div>
+            </div>
+            <h2 id="question-text" class="text-lg font-bold mb-8 min-h-[4rem] leading-snug text-white">正在加载题目...</h2>
+            <div id="options" class="space-y-4"></div>
+        </div>
+
+        <div id="result-screen" class="hidden text-center">
+            <div class="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="text-3xl">✨</span>
+            </div>
+            <h2 class="text-sm text-yellow-500 font-bold mb-2 uppercase">测评完成</h2>
+            <div id="result-title" class="text-3xl font-bold mb-4 text-white"></div>
+            <p id="result-intro" class="text-slate-400 text-sm mb-8 px-4 leading-relaxed"></p>
+            
+            <div class="bg-white/5 p-6 rounded-2xl border border-yellow-500/30 mb-6 text-center">
+                <p class="text-xs text-yellow-500 mb-2 font-bold italic">2026 财富增长密钥</p>
+                <h3 class="text-md font-bold mb-4">解锁 5000 字深度分析报告</h3>
+                <ul class="text-left text-xs text-slate-400 space-y-2 mb-6 mx-auto max-w-[200px] list-disc">
+                    <li>你的 3 个核心财富增长点</li>
+                    <li>2026 年性格避坑指南</li>
+                    <li>专属赛道与副业建议</li>
+                </ul>
+                <button onclick="handlePayment()" class="w-full py-3 bg-gradient-to-r from-yellow-600 to-yellow-400 text-black font-bold rounded-xl shadow-xl hover:brightness-110 transition-all">1.99元 获取完整报告</button>
+            </div>
+            <button onclick="location.reload()" class="text-xs text-slate-600 underline">重新测试</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "如果你突然获得一笔 50 万的意外奖金，你的首选处理方式是？", a: [{t:"存入高息账户或买入红利 ETF", s:"Guardian"}, {t:"投入正在筹备的轻资产创业项目", s:"Visionary"}, {t:"分批买入高波动的新兴市场资产", s:"Hunter"}, {t:"按既定比例优化现有的资产配置", s:"Architect"}] },
+            { q: "面对一个“可能翻倍但也可能清零”的机会，你的心理防线是？", a: [{t:"绝对不碰，安全第一", s:"Guardian"}, {t:"用亏得起的“小钱”去博一个未来", s:"Architect"}, {t:"只要胜率超过 50% 就值得重仓", s:"Hunter"}, {t:"先研究底层逻辑，看懂了再投", s:"Visionary"}] },
+            { q: "当市场出现恐慌性下跌，你的本能反应是？", a: [{t:"焦虑失眠，考虑割肉离场", s:"Guardian"}, {t:"复盘数据，看是否触发补仓信号", s:"Architect"}, {t:"兴奋，觉得捡钱的机会到了", s:"Hunter"}, {t:"观察是否有新的叙事逻辑在产生", s:"Visionary"}] },
+            { q: "你如何看待“借钱生钱”（杠杆）？", a: [{t:"极度厌恶，负债会让生活失去控制", s:"Guardian"}, {t:"在可控范围内，是加速财富的工具", s:"Architect"}, {t:"只要收益覆盖成本，越多越好", s:"Hunter"}, {t:"取决于是否能换取更有价值的资源", s:"Visionary"}] },
+            { q: "关于消费，你的原则更接近？", a: [{t:"极致省钱，积谷防饥", s:"Guardian"}, {t:"为提升效率和认知的工具买单", s:"Visionary"}, {t:"按预算生活，注重性价比", s:"Architect"}, {t:"为了偶尔的情绪价值可以挥金如土", s:"Hunter"}] },
+            { q: "如果必须选择一种致富速度，你更倾向于？", a: [{t:"慢即是快，靠时间复利", s:"Architect"}, {t:"抓住一个大浪潮实现阶层跃迁", s:"Visionary"}, {t:"高频交易，快速完成原始积累", s:"Hunter"}, {t:"稳扎稳打，保住本金就是赢", s:"Guardian"}] },
+            { q: "你如何筛选海量的搞钱信息？", a: [{t:"相信长期关注的行业专家", s:"Architect"}, {t:"寻找那些没人发现的冷门信息差", s:"Visionary"}, {t:"哪里有热度、哪里钱多就去哪里", s:"Hunter"}, {t:"只看经过时间验证的经典方法", s:"Guardian"}] },
+            { q: "当 AI 替代了你 80% 的日常工作，你会？", a: [{t:"利用省下的时间去探索全新的领域", s:"Visionary"}, {t:"担心失业，更加拼命保住现有位置", s:"Guardian"}, {t:"学习利用 AI 一个人做五个人的生意", s:"Architect"}, {t:"寻找 AI 浪潮中最具爆发力的投机点", s:"Hunter"}] },
+            { q: "你更愿意把时间花在以下哪种社交中？", a: [{t:"与比自己专业的人讨论系统架构", s:"Architect"}, {t:"与天马行空的创业者头脑风暴", s:"Visionary"}, {t:"与有资源、有直接利益的人换情报", s:"Hunter"}, {t:"与志同道合的人抱团取暖保资产", s:"Guardian"}] },
+            { q: "你如何评价自己的“信息差”敏感度？", a: [{t:"总能在趋势爆发前捕捉到信号", s:"Visionary"}, {t:"等趋势确定后，能快速跟进并执行", s:"Hunter"}, {t:"不听小道消息，只信原始数据", s:"Architect"}, {t:"别人都在说的机会，通常我都不碰", s:"Guardian"}] },
+            { q: "当你的认知与大众相反时，你会？", a: [{t:"坚定持仓，享受孤独的正确", s:"Visionary"}, {t:"开始自我怀疑，寻找折中方案", s:"Guardian"}, {t:"快速回测，看是否是自己错了", s:"Architect"}, {t:"不争论，直接用资金去投票", s:"Hunter"}] },
+            { q: "你对“跨界赚钱”的看法是？", a: [{t:"隔行如隔山，只做熟悉的领域", s:"Guardian"}, {t:"赚钱的本质是通用的，可以跨界", s:"Architect"}, {t:"跨界才有真正的超额收益（Alpha）", s:"Visionary"}, {t:"哪里赚钱就跨到哪里，不设限", s:"Hunter"}] },
+            { q: "在合作项目中，你最希望自己扮演的角色是？", a: [{t:"制定规则和流程的架构师", s:"Architect"}, {t:"冲在最前面拿结果的开路先锋", s:"Hunter"}, {t:"输出核心点子和方向的军师", s:"Visionary"}, {t:"管好账目和后勤的压舱石", s:"Guardian"}] },
+            { q: "当你的项目遇到瓶颈，你第一反应是？", a: [{t:"死磕到底，相信勤奋能解决问题", s:"Guardian"}, {t:"寻找更高效的杠杆或工具来突破", s:"Architect"}, {t:"换个思路，或者直接换个赛道", s:"Visionary"}, {t:"找有经验的人带路，带我飞", s:"Hunter"}] },
+            { q: "你认为一个人致富最靠的是？", a: [{t:"时代的红利与运气", s:"Hunter"}, {t:"对底层规律的深刻洞察", s:"Visionary"}, {t:"极度的自律与系统化执行", s:"Architect"}, {t:"谨慎的性格与对风险的敬畏", s:"Guardian"}] },
+            { q: "如果要在 2026 年开启一个副业，你会选择？", a: [{t:"基于个人爱好的长线个人品牌", s:"Architect"}, {t:"利用 AI 工具自动生成的套利项目", s:"Visionary"}, {t:"当下最火、变现最快的流量生意", s:"Hunter"}, {t:"稳定、有现金流的实体或咨询", s:"Guardian"}] },
+            { q: "你如何面对失败？", a: [{t:"那是必须支付的学费，复盘再战", s:"Architect"}, {t:"沉重打击，会缩减开支进入观察期", s:"Guardian"}, {t:"正常的概率分布，下一局会更好", s:"Hunter"}, {t:"说明目前的模型失效，需迭代认知", s:"Visionary"}] },
+            { q: "最后，你对未来三年的财富增长预期是？", a: [{t:"平稳增长，跑赢通胀即可", s:"Guardian"}, {t:"稳健翻倍，建立起资产护城河", s:"Architect"}, {t:"爆发式增长，实现个人身价跃迁", s:"Hunter"}, {t:"获得被动收入，实现时间自由", s:"Visionary"}] }
+        ];
+
+        let currentIdx = 0;
+        let scores = { Hunter: 0, Architect: 0, Visionary: 0, Guardian: 0 };
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentIdx];
+            document.getElementById('progress-text').innerText = `${String(currentIdx + 1).padStart(2, '0')} / ${questions.length}`;
+            document.getElementById('progress-bar').style.width = `${((currentIdx + 1) / questions.length) * 100}%`;
+            document.getElementById('question-text').innerText = q.q;
+            
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            q.a.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-left text-sm transition-all text-slate-300 hover:text-white";
+                btn.innerText = opt.t;
+                btn.onclick = () => next(opt.s);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function next(style) {
+            scores[style]++;
+            currentIdx++;
+            if (currentIdx < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            const top = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            
+            const meta = {
+                Hunter: { t: "极速狩猎者", i: "你拥有极强的财富直觉，但在波动的市场中容易因冲动而回吐利润。你适合爆发力强的短期赛道。" },
+                Architect: { t: "稳健构建者", i: "你相信复利和逻辑，擅长建立系统。但在大变局中，你有时会因过度谨慎而错过认知之外的机会。" },
+                Visionary: { t: "创新远见家", i: "你靠认知差和信息差赚钱，是天生的先行者。2026 年的 AI 与跨界机会将是你最大的主场。" },
+                Guardian: { t: "价值守望者", i: "你是风险控制的大师，在乱局中能守住本金。但在通胀时代，你最需要学习如何通过配置来进攻。" }
+            };
+            document.getElementById('result-title').innerText = meta[top].t;
+            document.getElementById('result-intro').innerText = meta[top].i;
+        }
+
+        function handlePayment() {
+            // 请在此处替换为您在“面包多”等平台生成的 1.99 元商品链接
+            window.location.href = "https://mianbaoduo.com/o/example-your-product"; 
+        }
+    </script>
+</body>
+</html>
